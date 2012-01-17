@@ -15,10 +15,13 @@
 #include <bspopts.h>
 #include <bsp/start.h>
 #include <bsp/linker-symbols.h>
+#include <stdint.h>
+#include <bsp/system_stm32f4xx.h>
 
 BSP_START_TEXT_SECTION void bsp_start_hook_0(void)
 {
-  
+  /*SystemInit();*/
+  SystemCoreClockUpdate();
 }
 
 BSP_START_TEXT_SECTION void bsp_start_hook_1(void)

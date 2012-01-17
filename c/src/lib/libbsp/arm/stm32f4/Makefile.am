@@ -118,10 +118,11 @@ libbsp_a_SOURCES += ../../../shared/clockdrv_shell.h \
     clock/clock-config.c
 
 # Peripheral
+libbsp_a_SOURCES += peripheral/src/misc.c
+libbsp_a_SOURCES += peripheral/src/system_stm32f4xx.c
 libbsp_a_SOURCES += peripheral/src/stm32f4xx_usart.c
 libbsp_a_SOURCES += peripheral/src/stm32f4xx_gpio.c
 libbsp_a_SOURCES += peripheral/src/stm32f4xx_rcc.c
-
 
 # Cache
 libbsp_a_SOURCES += ../../../libcpu/shared/src/cache_manager.c \

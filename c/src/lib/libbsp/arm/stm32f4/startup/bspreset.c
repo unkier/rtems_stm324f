@@ -17,9 +17,14 @@
 #include <rtems/score/armv7m.h>
 
 #include <bsp/bootcard.h>
+#include <stm32f4xx.h>
 
 void bsp_reset(void)
 {
+  GPIOD->ODR ^= GPIO_Pin_15;
+  
+  while(1){}
+
   rtems_interrupt_level level;
 
   rtems_interrupt_disable(level);

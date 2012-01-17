@@ -32,6 +32,6 @@ extern "C" {
 #endif /* ASM */
 
 #define BSP_INTERRUPT_VECTOR_MIN 0
-#define BSP_INTERRUPT_VECTOR_MAX 81
+#define BSP_INTERRUPT_VECTOR_MAX 81+16
 
 #endif /* LIBBSP_ARM_STM32F4_IRQ_H */

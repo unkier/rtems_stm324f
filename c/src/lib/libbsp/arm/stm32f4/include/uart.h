@@ -26,6 +26,7 @@
 #include <stm32f4xx_gpio.h>
 #include <stm32f4xx_usart.h>
 #include <stm32f4xx_rcc.h>
+#include <misc.h>
 
 
 #ifdef __cplusplus
@@ -73,6 +74,24 @@ extern "C" {
 #define EVAL_COM2_RX_AF                  GPIO_AF_USART3
 
 #define EVAL_COM2_IRQn                   USART3_IRQn
+
+typedef struct
+{
+  USART_TypeDef* usart;
+  uint8_t irq;
+  uint32_t  clk;
+  uint16_t  tx_pin;
+  uint16_t  rx_pin;
+  GPIO_TypeDef* tx_gpio_port;
+  GPIO_TypeDef* rx_gpio_port;
+  uint32_t  tx_port_clk;
+  uint32_t  rx_port_clk;
+  uint8_t tx_source;
+  uint8_t rx_source;
+  uint8_t tx_af;
+  uint8_t rx_af;
+} USART_PinsTypeDef;
+
 
 typedef enum 
 {
