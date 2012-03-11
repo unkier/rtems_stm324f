@@ -35,6 +35,8 @@ include_bsp_HEADERS += ../../shared/tod.h
 include_bsp_HEADERS += ../shared/include/start.h
 include_bsp_HEADERS += include/irq.h
 include_bsp_HEADERS += include/uart.h
+include_bsp_HEADERS += include/serial_console.h
+
 
 include_HEADERS += ../../shared/include/tm27.h
 
@@ -104,6 +106,9 @@ libbsp_a_SOURCES += ../../shared/src/irq-generic.c \
 	../../shared/src/irq-server.c \
 	irq/irq.c
 
+# Uart
+libbsp_a_SOURCES += uart/uart.c
+
 # Console
 libbsp_a_SOURCES += ../../shared/console.c
 libbsp_a_SOURCES += ../../shared/console_control.c
@@ -111,11 +116,19 @@ libbsp_a_SOURCES += ../../shared/console_read.c
 libbsp_a_SOURCES += ../../shared/console_select.c
 libbsp_a_SOURCES += ../../shared/console_write.c
 libbsp_a_SOURCES += console/console-config.c
-libbsp_a_SOURCES += console/uart.c
+libbsp_a_SOURCES += console/serial_console.c
 
 # Clock
 libbsp_a_SOURCES += ../../../shared/clockdrv_shell.h \
     clock/clock-config.c
+
+# Network
+network_CPPFLAGS = -D__INSIDE_RTEMS_BSD_TCPIP_STACK__
+#noinst_PROGRAMS = network.rel
+#network_rel_SOURCES = network/network.c
+#network_rel_CPPFLAGS = $(AM_CPPFLAGS) $(network_CPPFLAGS)
+#network_rel_LDFLAGS = $(RTEMS_RELLDFLAGS)
+#libbsp_a_LIBADD += network.rel
 
 # Peripheral
 libbsp_a_SOURCES += peripheral/src/misc.c
