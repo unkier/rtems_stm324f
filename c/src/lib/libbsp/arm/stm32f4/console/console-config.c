@@ -20,7 +20,8 @@
 
 #include <bspopts.h>
 #include <bsp/irq.h>
-#include <bsp/uart.h>
+
+#include <bsp/serial_console.h>
 
 
 console_tbl Console_Configuration_Ports [] = {

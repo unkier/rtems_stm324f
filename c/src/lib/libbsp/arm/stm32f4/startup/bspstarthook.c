@@ -20,7 +20,7 @@
 
 BSP_START_TEXT_SECTION void bsp_start_hook_0(void)
 {
-  /*SystemInit();*/
+  SystemInit();
   SystemCoreClockUpdate();
 }
 

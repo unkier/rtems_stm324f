@@ -18,6 +18,7 @@
 #include <bsp/uart.h>
 #include <libchip/sersupp.h>
 
+#include <bsp/serial_console.h>
 #include <rtems/score/armv7m.h>
 
 
@@ -56,67 +57,6 @@ USART_PinsTypeDef USART_Pins [] =
   }
 };
 
-
-
-void USART_Init_With_Irq(USART_InitTypeDef *init, USART_PinsTypeDef *pins)
-{
-  GPIO_InitTypeDef GPIO_InitStructure;
-  
-  NVIC_InitTypeDef NVIC_InitStructure;
-
-  
-  NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
-
-  NVIC_InitStructure.NVIC_IRQChannel = pins->irq;
-  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
-  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
-  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-  NVIC_Init(&NVIC_InitStructure);
-  
-
-  /* Enable UART clock */
-  if ((pins->usart == USART1) || (pins->usart == USART6))
-  {
-    RCC_APB2PeriphClockCmd(pins->clk, ENABLE);
-  }
-  else
-  {
-    RCC_APB1PeriphClockCmd(pins->clk, ENABLE);
-  }
-  
-  /* Enable GPIO clock */
-  RCC_AHB1PeriphClockCmd(pins->tx_port_clk | pins->rx_port_clk, ENABLE);
-
-  /* Connect PXx to USARTx_Tx*/
-  GPIO_PinAFConfig(pins->tx_gpio_port,pins->tx_source,pins->tx_af);
-
-  /* Connect PXx to USARTx_Rx*/
-  GPIO_PinAFConfig(pins->rx_gpio_port,pins->rx_source,pins->rx_af);
-
-  /* Configure USART Tx as alternate function  */
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
-
-  GPIO_InitStructure.GPIO_Pin = pins->tx_pin;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_Init(pins->tx_gpio_port, &GPIO_InitStructure);
-
-  /* Configure USART Rx as alternate function  */
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
-  GPIO_InitStructure.GPIO_Pin = pins->rx_pin;
-  GPIO_Init(pins->rx_gpio_port, &GPIO_InitStructure);
-
-  /* USART configuration */
-  USART_Init(pins->usart, init);
-    
-  /* Enable USART */
-  USART_Cmd(pins->usart, ENABLE);
-
-  USART_ITConfig(pins->usart,USART_IT_RXNE,ENABLE);
-}
-
-
 void LEDToggle1()
 {
   GPIOD->ODR ^= GPIO_Pin_12;
@@ -143,10 +83,7 @@ static void usart_interrupt_handler(void)
 
 static void initialize(int minor)
 {
-  
-  _ARMV7M_Set_exception_handler(ARMV7M_VECTOR_IRQ(EXTI1_IRQn),usart_interrupt_handler);
-    /*_ARMV7M_Set_exception_handler(ARMV7M_VECTOR_IRQ(USART6_IRQn),usart_interrupt_handler);*/
-
+  _ARMV7M_Set_exception_handler(ARMV7M_VECTOR_IRQ(USART6_IRQn),usart_interrupt_handler);
 }
 
 static int first_open(int major, int minor, void *arg)
@@ -162,7 +99,7 @@ static int first_open(int major, int minor, void *arg)
 
   USART_Init_With_Irq(&USART_Init_struct[minor],&USART_Pins[minor]);
 
-  return rtems_termios_set_initial_baud(tty, 115200);
+  return rtems_termios_set_initial_baud(tty, USART_Init_struct[minor].USART_BaudRate);
 }
 
 static int last_close(int major, int minor, void *arg)
@@ -172,8 +109,14 @@ static int last_close(int major, int minor, void *arg)
 
 static int read_polled(int minor)
 {
-  return 0;
-  /*return UARTCharGetNonBlocking(UART1_BASE);*/
+  if (USART_GetFlagStatus(USART_Pins[minor].usart,USART_FLAG_RXNE) == SET)
+  {
+    return USART_ReceiveData(USART_Pins[minor].usart);
+  }
+  else
+  {
+    return -1;
+  }
 }
 
 static void write_polled(int minor, char c)
